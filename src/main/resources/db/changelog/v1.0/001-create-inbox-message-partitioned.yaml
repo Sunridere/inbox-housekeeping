@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-inbox-message-partitioned
+      author: Alexey Rabuev
+      changes:
+        - sqlFile:
+            path: sql/001-create-inbox-message.sql
+            relativeToChangelogFile: true
