@@ -72,6 +72,11 @@
       <version>7.7.0</version>
       <scope>compile</scope>
     </dependency>
+    <!-- даёт Micrometer core + автоконфигурацию MeterRegistry + /actuator -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
