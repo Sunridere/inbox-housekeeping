@@ -6,3 +6,4 @@ databaseChangeLog:
         - sqlFile:
             path: sql/001-create-inbox-message.sql
             relativeToChangelogFile: true
+            splitStatements: false
