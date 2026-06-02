@@ -1,5 +1,6 @@
 -- Тестовые данные для inbox_message.
--- На каждую существующую дневную партицию (2026-05-27 .. 2026-06-02) генерируется
+-- На каждую существующую дневную партицию генерируется по 500 записей.
+-- Диапазон: 7 дней назад .. сегодня (8 дней итого).
 -- по 500 записей. Распределение статусов: ~20% ERROR, ~20% NEW, ~60% DONE.
 -- id и kafka_offset уникальны за счёт смещения base по дням.
 INSERT INTO inbox_message (
@@ -39,13 +40,10 @@ SELECT
     d.day + ((g % 86400) * INTERVAL '1 second')               AS updated_at,
     'kafka-consumer'                                          AS created_by,
     'kafka-consumer'                                          AS updated_by
-FROM (VALUES
-    ('2026-05-27'::timestamptz, 1000000),
-    ('2026-05-28'::timestamptz, 2000000),
-    ('2026-05-29'::timestamptz, 3000000),
-    ('2026-05-30'::timestamptz, 4000000),
-    ('2026-05-31'::timestamptz, 5000000),
-    ('2026-06-01'::timestamptz, 6000000),
-    ('2026-06-02'::timestamptz, 7000000)
-) AS d(day, base)
+FROM (
+    SELECT
+        (CURRENT_DATE - (7 - n)::INT)::TIMESTAMPTZ AS day,
+        (n + 1) * 1000000                           AS base
+    FROM generate_series(0, 7) AS n
+) AS d
 CROSS JOIN generate_series(1, 500) AS g;
