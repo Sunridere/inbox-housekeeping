@@ -84,8 +84,14 @@ public class InboxMessageRepository {
                     NOW()    AS updated_at,
                     '%2$s'   AS created_by,
                     '%2$s'   AS updated_by
-                FROM batch
-                ON CONFLICT (id) DO NOTHING
+                    FROM batch b
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM archive_inbox_message a
+                        WHERE a.topic = b.topic
+                          AND a.kafka_partition = b.kafka_partition
+                          AND a.kafka_offset = b.kafka_offset
+                    )
             )
             SELECT max(id) AS last_id, count(*) AS cnt FROM batch
             """.formatted(partitionName, ARCHIVED_BY);
@@ -118,7 +124,11 @@ public class InboxMessageRepository {
             FROM %s p
             WHERE p.status = 'ERROR'
               AND NOT EXISTS (
-                  SELECT 1 FROM archive_inbox_message a WHERE a.id = p.id
+                  SELECT 1 
+                  FROM archive_inbox_message a 
+                  WHERE a.topic = p.topic
+                     AND a.kafka_partition = p.kafka_partition
+                     AND a.kafka_offset = p.kafka_offset
               )
             """.formatted(partitionName),
             Long.class);
