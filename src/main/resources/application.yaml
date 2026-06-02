@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: inbox-housekeeping
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/postgres}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: ${LIQUIBASE_CONTEXTS:dev}
+
+housekeeping:
+  error-retention-days: ${HOUSEKEEPING_ERROR_RETENTION_DAYS:7}
+  archive-batch-size: ${HOUSEKEEPING_ARCHIVE_BATCH_SIZE:5000}
+  cron: ${HOUSEKEEPING_CRON:0 0 2 * * *}
+  lock-at-most-for: ${HOUSEKEEPING_LOCK_AT_MOST_FOR:30m}
+  lock-at-least-for: ${HOUSEKEEPING_LOCK_AT_LEAST_FOR:5m}

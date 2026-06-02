@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: postgres
+    password: postgres
+
+  liquibase:
+    contexts: dev
+
+housekeeping:
+  error-retention-days: 2
+  archive-batch-size: 5000
+  cron: 0 * * * * *
+  lock-at-most-for: 30m
+  lock-at-least-for: 0s
