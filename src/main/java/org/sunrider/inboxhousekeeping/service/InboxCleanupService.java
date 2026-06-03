@@ -38,8 +38,6 @@ public class InboxCleanupService {
                     partitionName, unarchived);
                 continue;
             }
-
-            inboxMessageRepository.detachPartition(partitionName);
             inboxMessageRepository.dropPartition(partitionName);
             partitionsDeleted++;
         }

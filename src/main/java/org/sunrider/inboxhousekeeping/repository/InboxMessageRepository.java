@@ -137,14 +137,6 @@ public class InboxMessageRepository {
         return count == null ? 0 : count.intValue();
     }
 
-    public void detachPartition(String partitionName) {
-        validatePartitionName(partitionName);
-        jdbcTemplate.execute(
-            "ALTER TABLE inbox_message DETACH PARTITION %s"
-                .formatted(partitionName)
-        );
-    }
-
     public void dropPartition(String partitionName) {
         validatePartitionName(partitionName);
         jdbcTemplate.execute(
