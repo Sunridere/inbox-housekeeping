@@ -16,17 +16,19 @@ public class InboxMessageRepository {
 
     public List<String> getOldPartitions(int retentionDays) {
         return jdbcTemplate.queryForList("""
-            SELECT child.relname AS partition_name
-            FROM pg_inherits
-            JOIN pg_class parent ON pg_inherits.inhparent = parent.oid
-            JOIN pg_class child  ON pg_inherits.inhrelid  = child.oid
-            WHERE parent.relname = 'inbox_message'
-              AND child.relname != 'inbox_message_default'
-              AND TO_DATE(
-                    SUBSTRING(child.relname FROM 'inbox_message_(\\d{4}_\\d{2}_\\d{2})'),
-                    'YYYY_MM_DD'
-                  ) < CURRENT_DATE - INTERVAL '1 day' * ?
-            """,
+        SELECT child.relname AS partition_name
+        FROM pg_inherits
+        JOIN pg_class parent ON pg_inherits.inhparent = parent.oid
+        JOIN pg_class child  ON pg_inherits.inhrelid  = child.oid
+        WHERE parent.relname = 'inbox_message'
+          AND child.relkind = 'r'
+          AND child.relname ~ '^inbox_message_\\d{4}_\\d{2}_\\d{2}$'
+          AND (regexp_match(
+                 pg_get_expr(child.relpartbound, child.oid),
+                 $$TO \\('([^']+)'\\)$$
+              ))[1]::timestamptz <= (CURRENT_DATE - INTERVAL '1 day' * ?) AT TIME ZONE 'UTC'
+        ORDER BY partition_name
+        """,
             String.class, retentionDays);
     }
 
