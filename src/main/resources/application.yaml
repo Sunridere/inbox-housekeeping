@@ -18,3 +18,19 @@ housekeeping:
   cron: ${HOUSEKEEPING_CRON:0 0 2 * * *}
   lock-at-most-for: ${HOUSEKEEPING_LOCK_AT_MOST_FOR:30m}
   lock-at-least-for: ${HOUSEKEEPING_LOCK_AT_LEAST_FOR:5m}
+
+resilience4j:
+  retry:
+    instances:
+      dbOperation:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.dao.TransientDataAccessException
+          - org.springframework.dao.QueryTimeoutException
+          - org.springframework.dao.CannotAcquireLockException
+        ignore-exceptions:
+          - org.springframework.dao.DataIntegrityViolationException
+          - org.springframework.dao.NonTransientDataAccessException

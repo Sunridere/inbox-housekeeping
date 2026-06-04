@@ -29,17 +29,22 @@ public class InboxCleanupService {
         int totalArchived = 0;
         int partitionsDeleted = 0;
         for (String partitionName : expiredPartition) {
-            totalArchived += inboxMessageRepository.archiveErrorMessages(partitionName, archiveBatchSize);
+            try {
+                totalArchived += inboxMessageRepository.archiveErrorMessages(partitionName,
+                    archiveBatchSize);
 
-            // Защита от потери данных: не дропаем, пока в архиве нет всех ERROR-записей.
-            int unarchived = inboxMessageRepository.countUnarchivedErrors(partitionName);
-            if (unarchived > 0) {
-                log.error("Skip dropping partition {}: {} ERROR rows are not archived yet",
-                    partitionName, unarchived);
-                continue;
+                // Защита от потери данных: не дропаем, пока в архиве нет всех ERROR-записей.
+                int unarchived = inboxMessageRepository.countUnarchivedErrors(partitionName);
+                if (unarchived > 0) {
+                    log.error("Skip dropping partition {}: {} ERROR rows are not archived yet",
+                        partitionName, unarchived);
+                    continue;
+                }
+                inboxMessageRepository.dropPartition(partitionName);
+                partitionsDeleted++;
+            }catch (Exception e) {
+                log.error("Error dropping partition {}", partitionName, e);
             }
-            inboxMessageRepository.dropPartition(partitionName);
-            partitionsDeleted++;
         }
         log.info("Total archived error messages: {} from {} partitions",
             totalArchived, partitionsDeleted);

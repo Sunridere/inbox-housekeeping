@@ -36,10 +36,6 @@ public abstract class AbstractIntegrationTest {
             .withEnv("TZ", "UTC")
             .withEnv("PGTZ", "UTC");
 
-    static {
-        POSTGRES.start();
-    }
-
     @Autowired
     protected JdbcTemplate jdbc;
 

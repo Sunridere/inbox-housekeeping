@@ -1,2 +1,8 @@
 housekeeping:
   error-retention-days: 7
+
+resilience4j:
+  retry:
+    instances:
+      dbOperation:
+        wait-duration: 10ms

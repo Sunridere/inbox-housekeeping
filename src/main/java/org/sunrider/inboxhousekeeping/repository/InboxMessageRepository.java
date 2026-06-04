@@ -1,5 +1,6 @@
 package org.sunrider.inboxhousekeeping.repository;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ public class InboxMessageRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Retry(name = "dbOperation")
     public List<String> getOldPartitions(int retentionDays) {
         return jdbcTemplate.queryForList("""
         SELECT child.relname AS partition_name
@@ -32,17 +34,7 @@ public class InboxMessageRepository {
             String.class, retentionDays);
     }
 
-    /**
-     * Архивирует ERROR-записи партиции батчами keyset-пагинацией по id.
-     * <p>
-     * Каждый батч выполняется отдельным стейтментом и, при отсутствии внешней
-     * транзакции, отдельной транзакцией — это дробит WAL и не держит долгих
-     * локов. Курсор {@code lastId} двигается по окну выборки (CTE {@code batch}),
-     * а не по фактически вставленным строкам, поэтому {@code ON CONFLICT DO NOTHING}
-     * при повторном прогоне не обрывает цикл преждевременно.
-     *
-     * @return суммарное число обработанных ERROR-записей
-     */
+    @Retry(name = "dbOperation")
     public int archiveErrorMessages(String partitionName, int batchSize) {
         validatePartitionName(partitionName);
         String sql = """
@@ -115,10 +107,7 @@ public class InboxMessageRepository {
         return total;
     }
 
-    /**
-     * Возвращает число ERROR-записей партиции, которых ещё нет в архиве (по id).
-     * 0 означает, что архивация полна и партицию можно безопасно дропать.
-     */
+    @Retry(name = "dbOperation")
     public int countUnarchivedErrors(String partitionName) {
         validatePartitionName(partitionName);
         Long count = jdbcTemplate.queryForObject("""
@@ -137,6 +126,7 @@ public class InboxMessageRepository {
         return count == null ? 0 : count.intValue();
     }
 
+    @Retry(name = "dbOperation")
     public void dropPartition(String partitionName) {
         validatePartitionName(partitionName);
         jdbcTemplate.execute(
