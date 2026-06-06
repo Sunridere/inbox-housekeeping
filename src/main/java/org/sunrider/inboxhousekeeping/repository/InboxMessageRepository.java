@@ -1,10 +1,12 @@
 package org.sunrider.inboxhousekeeping.repository;
 
 import io.github.resilience4j.retry.annotation.Retry;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -132,6 +134,20 @@ public class InboxMessageRepository {
         jdbcTemplate.execute(
             "DROP TABLE IF EXISTS %s".formatted(partitionName)
         );
+    }
+
+    public Map<String, Long> countByStatusInboxMessage() {
+        return jdbcTemplate.query("""
+                SELECT status, count(*) as cnt
+                FROM inbox_message
+                GROUP BY status""",
+            (ResultSetExtractor<Map<String, Long>>) rs -> {
+                Map<String, Long> result = new HashMap<>();
+                while (rs.next()) {
+                    result.put(rs.getString("status"), rs.getLong("cnt"));
+                }
+                return result;
+            });
     }
 
     private void validatePartitionName(String partitionName) {
