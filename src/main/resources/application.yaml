@@ -34,3 +34,17 @@ resilience4j:
         ignore-exceptions:
           - org.springframework.dao.DataIntegrityViolationException
           - org.springframework.dao.NonTransientDataAccessException
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+  metrics:
+    distribution:
+      percentiles-histogram:
+        job.execution: true
+      minimum-expected-value:
+        job.execution: 10ms
+      maximum-expected-value:
+        job.execution: 30m
