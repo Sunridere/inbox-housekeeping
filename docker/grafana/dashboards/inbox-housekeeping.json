@@ -4,12 +4,12 @@
   "metadata": {
     "name": "ad459pb",
     "namespace": "default",
-    "uid": "06edbb5d-6b34-4c59-9602-caf73e69a6ae",
-    "resourceVersion": "1780759339377004",
-    "generation": 2,
-    "creationTimestamp": "2026-06-06T15:20:52Z",
+    "uid": "a9fac6ce-ae16-48d6-a352-c65164ae46a6",
+    "resourceVersion": "1780762846486003",
+    "generation": 3,
+    "creationTimestamp": "2026-06-06T15:23:59Z",
     "labels": {
-      "grafana.app/deprecatedInternalID": "631338411077632"
+      "grafana.app/deprecatedInternalID": "632122516959232"
     },
     "annotations": {
       "grafana.app/createdBy": "access-policy:service",
@@ -18,11 +18,11 @@
       "grafana.app/managerAllowsEdits": "true",
       "grafana.app/managerId": "inbox-housekeeping",
       "grafana.app/saved-from-ui": "Grafana v13.0.2 (3fcdbc5a)",
-      "grafana.app/sourceChecksum": "a71df3ad59d63178e80404333fff4fb3",
+      "grafana.app/sourceChecksum": "913cabfe6177862b8ebd19d88942fd3d",
       "grafana.app/sourcePath": "/etc/grafana/dashboards/inbox-housekeeping.json",
-      "grafana.app/sourceTimestamp": "1780759199000",
-      "grafana.app/updatedBy": "user:ffobvp4nyolc0f",
-      "grafana.app/updatedTimestamp": "2026-06-06T15:22:19Z"
+      "grafana.app/sourceTimestamp": "1780759385000",
+      "grafana.app/updatedBy": "user:afobvz53dqn0gc",
+      "grafana.app/updatedTimestamp": "2026-06-06T16:20:46Z"
     }
   },
   "spec": {
@@ -54,7 +54,7 @@
         "kind": "Panel",
         "spec": {
           "id": 1,
-          "title": "New panel",
+          "title": "Длительность джобы",
           "description": "",
           "links": [],
           "data": {
@@ -218,7 +218,7 @@
         "kind": "Panel",
         "spec": {
           "id": 2,
-          "title": "Inbox rows by status",
+          "title": "Строки inbox по статусам",
           "description": "",
           "links": [],
           "data": {
@@ -332,6 +332,124 @@
             }
           }
         }
+      },
+      "panel-3": {
+        "kind": "Panel",
+        "spec": {
+          "id": 3,
+          "title": "Время операций БД (avg) по методам",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "PBFA97CFB590B2093"
+                      },
+                      "spec": {
+                        "editorMode": "code",
+                        "expr": "rate(inbox_db_operation_seconds_sum[5m]) / rate(inbox_db_operation_seconds_count[5m])",
+                        "legendFormat": "{{method}}",
+                        "range": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "13.0.2",
+            "spec": {
+              "options": {
+                "annotations": {
+                  "clustering": -1,
+                  "multiLane": false
+                },
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "hideZeros": false,
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": 0,
+                        "color": "green"
+                      },
+                      {
+                        "value": 80,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisBorderShow": false,
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "barWidthFactor": 0.6,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "insertNulls": false,
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "showValues": false,
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
       }
     },
     "layout": {
@@ -356,6 +474,15 @@
               "element": {
                 "kind": "ElementReference",
                 "name": "panel-2"
+              }
+            }
+          },
+          {
+            "kind": "AutoGridLayoutItem",
+            "spec": {
+              "element": {
+                "kind": "ElementReference",
+                "name": "panel-3"
               }
             }
           }

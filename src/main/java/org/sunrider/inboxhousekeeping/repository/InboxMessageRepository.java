@@ -1,6 +1,7 @@
 package org.sunrider.inboxhousekeeping.repository;
 
 import io.github.resilience4j.retry.annotation.Retry;
+import io.micrometer.core.annotation.Timed;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ public class InboxMessageRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Timed("inbox.db.operation")
     @Retry(name = "dbOperation")
     public List<String> getOldPartitions(int retentionDays) {
         return jdbcTemplate.queryForList("""
@@ -36,6 +38,7 @@ public class InboxMessageRepository {
             String.class, retentionDays);
     }
 
+    @Timed("inbox.db.operation")
     @Retry(name = "dbOperation")
     public int archiveErrorMessages(String partitionName, int batchSize) {
         validatePartitionName(partitionName);
@@ -109,6 +112,7 @@ public class InboxMessageRepository {
         return total;
     }
 
+    @Timed("inbox.db.operation")
     @Retry(name = "dbOperation")
     public int countUnarchivedErrors(String partitionName) {
         validatePartitionName(partitionName);
@@ -128,6 +132,7 @@ public class InboxMessageRepository {
         return count == null ? 0 : count.intValue();
     }
 
+    @Timed("inbox.db.operation")
     @Retry(name = "dbOperation")
     public void dropPartition(String partitionName) {
         validatePartitionName(partitionName);
@@ -136,6 +141,7 @@ public class InboxMessageRepository {
         );
     }
 
+    @Timed("inbox.db.operation")
     public Map<String, Long> countByStatusInboxMessage() {
         return jdbcTemplate.query("""
                 SELECT status, count(*) as cnt
